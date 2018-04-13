@@ -1,6 +1,7 @@
 library(rvest)
 library(stringr)
 library(raster)
+library(rgdal)
 
 years       <- 2015:2030
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -58,4 +59,11 @@ rm(temp_no2_data, temp_pm25_data, session, temp_no2_session, temp_pm25_session, 
 coordinates(no2_data) <- ~ x + y
 gridded(no2_data)     <- TRUE
 no2_data              <- raster(no2_data)
+
+## Get the GeoJSON from GitHub
+
+url     <- 'https://opendata.arcgis.com/datasets/d5c9c1d89a5a44e9a7f88f182ffe5ba2_2.geojson'
+wards   <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
+
+## NOw join using 'lad16nm' from this file with LA info earlier?
 

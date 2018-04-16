@@ -199,9 +199,6 @@ wards$st_lengthshape  <- NULL
 wards                 <- data.frame(wards)
 names(wards)          <- gsub('X', '', names(wards))
 
-## Don't need all Wards, so remove ones not of interest
-wards
-
 print('All done, writing to a (large) csv')
 
 write.csv(wards, file ="wards.csv",row.names=FALSE)

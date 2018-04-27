@@ -6,6 +6,7 @@ library(rvest)
 library(stringr)
 library(raster)
 library(rgdal)
+library(rgeos)
 
 ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
@@ -15,6 +16,18 @@ latlong     <- "+init=epsg:4326"
 years       <- c(2011,2015:2030)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
+authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
+                                             'Trafford', 'Wigan', 'Manchester', 'Salford', 'Cheshire East',  'Rossendale'),
+                          stringsAsFactors = F)
+
+print('getting a geojson of UK wards from governmant data portal')
+
+url     <- 'https://opendata.arcgis.com/datasets/d5c9c1d89a5a44e9a7f88f182ffe5ba2_2.geojson'
+wards   <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
+wards   <- spTransform(wards, ukgrid)
+wards   <- wards[wards$lad16nm %in% authorities$authority_name,]
+
+## Link my session to the form I'm going to download data from
 session_2015       <- html_session("https://uk-air.defra.gov.uk/data/laqm-background-maps?year=2015")
 form_2015          <- html_form(session_2015)[[3]]
 
@@ -70,17 +83,11 @@ for (i in 1:length(years)){
   
 } ## End the years loop
 
-rm(temp_no2_data, temp_pm25_data, session, temp_no2_session, temp_pm25_session, i, j, year, form, filledform)
+rm(temp_no2_data, temp_pm25_data, session, temp_no2_session, temp_pm25_session, i, j, year, form, filledform, form_2011, form_2015, session_2011, session_2015)
 
 ## All good to this point. Now need the ward boundaries. Instead of using the shapefile from
 ## David going to get my own, hopefully this is ok...
 
-print('getting a geojson of UK wards from governmant data portal')
-
-url     <- 'https://opendata.arcgis.com/datasets/d5c9c1d89a5a44e9a7f88f182ffe5ba2_2.geojson'
-wards   <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
-wards   <- spTransform(wards, ukgrid)
-wards   <- wards[wards$lad16nm %in% authorities$authority_name,]
 
 ## Now need to make rasters from the points. Tricky as multiple years and pollutants
 ## Do some tidying up first
@@ -107,7 +114,9 @@ for (i in 1:length(years)) {
   gridded(one_year)         <- TRUE
   one_year                  <- raster(one_year)
   
-  if (i == 1) {no2_raster   <- one_year} else {no2_raster <- stack(no2_raster, one_year)}
+  if (i == 1) {no2_raster   <- one_year} else {
+    no2_raster <- stack(no2_raster, crop(one_year, no2_raster))
+    }
   
   print(year)
   
@@ -143,7 +152,9 @@ for (i in 1:length(years)) {
     gridded(one_year)         <- TRUE
     one_year                  <- raster(one_year)
     
-    if (i == 1 & j ==1) {pm25_raster  <- one_year} else {pm25_raster <- stack(pm25_raster, one_year)}
+    if (i == 1 & j ==1) {pm25_raster   <- one_year} else {
+      pm25_raster <- stack(pm25_raster, crop(one_year, pm25_raster))
+    }
     
     names(pm25_raster)[counter]     <- paste0(year, '_', one_source)
     counter <- counter+1

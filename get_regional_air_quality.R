@@ -2,12 +2,15 @@ rm(list=ls())
 
 print('Loading any missing libraries')
 
+devtools::install_github("tidyverse/ggplot2")
+
 library(rvest)
 library(stringr)
 library(raster)
 library(rgdal)
 library(rgeos)
 library(ggplot2)
+library(sf)
 
 ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
@@ -224,7 +227,13 @@ write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
 rm(wards_csv)
 
 ## Get it ready for plotting
-wards                 <- fortify(wards, regions = 'wd16nm')
+wards  <- st_as_sf(wards)
+
+ggplot(wards) +
+  geom_sf(aes(fill = '2030_pm25_total')) +
+  scale_fill_viridis("Area") +
+  ggtitle("Area of counties in North Carolina") +
+  theme_bw()
 
 pm25_maps_list        <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
 pm25_plot_list        <- list()

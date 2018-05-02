@@ -7,13 +7,14 @@ library(stringr)
 library(raster)
 library(rgdal)
 library(rgeos)
+library(ggplot2)
 
 ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
 
 
 # Wales, MIdland, Northern England
-years       <- c(2011,2015:2030)
+years       <- c(2011,2015,2020,2025,2030)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -216,8 +217,22 @@ wards$long            <- NULL
 wards$lat             <- NULL
 wards$st_areashape    <- NULL
 wards$st_lengthshape  <- NULL
-wards                 <- data.frame(wards)
-names(wards)          <- gsub('X', '', names(wards))
+
+wards_csv             <- data.frame(wards)
+names(wards_csv)      <- gsub('X', '', names(wards_csv))
+write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
+rm(wards_csv)
+
+## Get it ready for plotting
+wards                 <- fortify(wards, regions = 'wd16nm')
+
+pm25_maps_list        <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
+pm25_plot_list        <- list()
+
+for (i in 1:length(pm25_maps_list)) {
+  pm25_plot_list[[i]]   <- 
+  
+}
 
 print('All done, writing to a (large) csv')
 

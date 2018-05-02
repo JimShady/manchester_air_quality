@@ -27,6 +27,13 @@ wards   <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
 wards   <- spTransform(wards, ukgrid)
 wards   <- wards[wards$lad16nm %in% authorities$authority_name,]
 
+print('getting a geojson of UK local authorities from data portal')
+
+url             <- 'https://opendata.arcgis.com/datasets/8edafbe3276d4b56aec60991cbddda50_4.geojson'
+auth_boundary   <- readOGR(dsn = url, layer = "8edafbe3276d4b56aec60991cbddda50_4")
+auth_boundary   <- spTransform(auth_boundary, ukgrid)
+auth_boundary   <- auth_boundary[auth_boundary$lad15nm %in% authorities$authority_name,]
+
 ## Link my session to the form I'm going to download data from
 session_2015       <- html_session("https://uk-air.defra.gov.uk/data/laqm-background-maps?year=2015")
 form_2015          <- html_form(session_2015)[[3]]
@@ -197,7 +204,7 @@ for (i in 1:length(names(pm25_raster))) {
 }
 
 ## Bit of tidying up
-print('Almost done, just tidying up')
+print('Tidying up')
 
 names(wards)          <- gsub('X', '', names(wards))
 wards$objectid        <- NULL

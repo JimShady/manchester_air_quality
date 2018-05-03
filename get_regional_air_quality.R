@@ -254,7 +254,7 @@ pm25_factors                    <- c('0-4', '4-5', '5-6', '6-7', '7-8', '8-9', '
 ## Now NO2 stuff
 source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
 no2_laei2013_breaks            <-  c(4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,40)
-no2_laei2013_labels            <- c(  '0-4' = "#002851",
+no2_laei2013_labels            <- c(  '0-4' = "#FFFFFF",
                                       '4-6' = "#01129C",
                                       '6-8' = "#0325D3",
                                       '8-10' = "#064AF4",
@@ -289,16 +289,16 @@ for (i in 1:length(pm25_maps_list)) {
   wards[[pm25_maps_list[i]]]  <- factor(wards[[pm25_maps_list[i]]], levels = pm25_factors)
   
   plot                       <- ggplot(wards) +
-                                    geom_sf(aes(fill = wards[[pm25_maps_list[i]]]), colour='white') +
+                                    geom_sf(aes(fill = wards[[pm25_maps_list[i]]]), colour='grey') +
                                     scale_fill_manual(values = pm25_laei2013_labels, drop=FALSE, name = expression(paste('PM'[2.5], ' ', mu, 'g ', m^3, ' '))) +
                                     theme(axis.text = element_blank(),
+                                          axis.ticks = element_blank(),
                                           panel.background = element_blank(),
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
   
-  png(paste0(pm25_maps_list[i], ".png"), units = 'cm', height = 7, width = 6)
-  print(plot)
-  dev.off()
+  ggsave(paste0('C:/Users/james/Desktop/maps/', pm25_maps_list[i], ".png"), plot)
+  
   
   
 }
@@ -312,23 +312,26 @@ for (i in 1:length(no2_maps_list)) {
   wards[[no2_maps_list[i]]]  <- gsub(",", "-", wards[[no2_maps_list[i]]], fixed=T)
   wards[[no2_maps_list[i]]]  <- factor(wards[[no2_maps_list[i]]], levels = no2_factors)
   
-  no2_plot_list[[i]]         <- ggplot(wards) +
-                                    geom_sf(aes(fill = wards[[no2_maps_list[i]]]), colour='white') +
+  plot                      <- ggplot(wards) +
+                                    geom_sf(aes(fill = wards[[no2_maps_list[i]]]), colour='grey') +
                                     scale_fill_manual(values = no2_laei2013_labels, drop=FALSE, name = expression(paste('NO'[2], ' ', mu, 'g ', m^3, ' '))) +
                                     theme(axis.text = element_blank(),
                                           panel.background = element_blank(),
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
-}
-
-## Now get on to the plotting
-
-for (i in 1:length(plots)) {
+  
+  ggsave(paste0('C:/Users/james/Desktop/maps/', no2_maps_list[i], ".png"), plot)
+  
   
 }
+
+
+write.csv(wards, file ="'C:/Users/james/Desktop/maps/data.csv",row.names=FALSE)
+
+
 
 print('All done, writing to a (large) csv, outputting PNG files for the maps, and sticking them all in a ZIP file')
 
 
 
-write.csv(wards, file ="wards.csv",row.names=FALSE)
+

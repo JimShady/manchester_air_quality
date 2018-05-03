@@ -11,6 +11,7 @@ library(rgdal)
 library(rgeos)
 library(ggplot2)
 library(sf)
+library(viridis)
 
 ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
@@ -227,20 +228,32 @@ write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
 rm(wards_csv)
 
 ## Get it ready for plotting
-wards  <- st_as_sf(wards)
+names(wards)          <- gsub('X', '', names(wards))
+wards                 <- st_as_sf(wards)
 
-ggplot(wards) +
-  geom_sf(aes(fill = '2030_pm25_total')) +
-  scale_fill_viridis("Area") +
-  ggtitle("Area of counties in North Carolina") +
-  theme_bw()
+## Colour scales
+pm25_laei2013_breaks  <- 4:15 #12
+pm25_laei2013_colours <- pm25_laei2013_colours #11
+pm25_laei2013_labels  <- c('< 4', as.character(5:15)) #15
 
 pm25_maps_list        <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
 pm25_plot_list        <- list()
 
+no2_maps_list        <- c('2011_no2_total','2015_no2_total','2020_no2_total','2025_no2_total', '2030_no2_total')
+no2_plot_list        <- list()
+
+
+source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
+source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/pm25_laei2013_colours_breaks.R')
+
 for (i in 1:length(pm25_maps_list)) {
-  pm25_plot_list[[i]]   <- 
   
+  t <- quote('test')
+  
+  pm25_plot_list[[i]]   <- ggplot(wards) +
+                            geom_sf(aes(fill = round(wards[[no2_maps_list[1]]][,1]),1)) +
+                            scale_fill_viridis() +
+                            theme_bw()
 }
 
 print('All done, writing to a (large) csv')

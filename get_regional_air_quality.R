@@ -18,8 +18,8 @@ latlong     <- "+init=epsg:4326"
 
 
 # Wales, MIdland, Northern England
-#years       <- c(2011,2015,2020,2025,2030)
-years       <- c(2011)
+years       <- c(2011,2015,2020,2025,2030)
+#years       <- c(2011)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -232,30 +232,96 @@ rm(wards_csv)
 names(wards)          <- gsub('X', '', names(wards))
 wards                 <- st_as_sf(wards)
 
-## Colour scales
-pm25_laei2013_breaks  <- 4:15 #12
-pm25_laei2013_colours <- pm25_laei2013_colours #11
-pm25_laei2013_labels  <- c('< 4', as.character(5:15)) #15
+## Sorting out colours and breaks
 
-pm25_maps_list        <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
-pm25_plot_list        <- list()
+## First PM2.5 stuff
+source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/pm25_laei2013_colours_breaks.R')
+pm25_laei2013_breaks            <-  4:15
+pm25_laei2013_labels            <- c('0-4' = "#FFFFFF",
+                                     '4-5' = "#01129C",
+                                     '5-6' = "#0325D3",
+                                     '6-7' = "#064AF4",
+                                     '7-8' = "#0C95E9",
+                                     '8-9' = "#19CFD2",
+                                     '9-10' = "#82FDCF",
+                                     '10-11' = "#68DE85",
+                                     '11-12' = "#A4EB50",
+                                     '12-13' = "#FFFF80",
+                                     '13-14' = "#FFD600",
+                                     '14-15' = '#F97C00')
+pm25_factors                    <- c('0-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10', '10-11', '11-12','12-13','13-14', '14-15')
 
+## Now NO2 stuff
+source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
+no2_laei2013_breaks            <-  c(4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,40)
+no2_laei2013_labels            <- c(  '0-4' = "#002851",
+                                      '4-6' = "#01129C",
+                                      '6-8' = "#0325D3",
+                                      '8-10' = "#064AF4",
+                                      '10-12' = "#0C95E9",
+                                      '12-14' = "#19CFD2",
+                                      '14-16' = "#82FDCF",
+                                      '16-18' = "#68DE85",
+                                      '18-20' = "#A4EB50",
+                                      '20-22' = "#FFFF80",
+                                      '22-24' = "#FFD600",
+                                      '24-26' = '#FFAD5B',
+                                      '26-28' = '#F97C00',
+                                      '28-30' = '#FF0000',
+                                      '30-32' = '#800040',
+                                      '32-40' = '#400040'
+                                    )
+no2_factors                    <- c('0-4', '4-6', '6-8', '8-10', '10-12', '12-14', '14-16', '16-18', '18-20','20-22','22-24', '24-26', '26-28', '28-30', '30-32', '32-40')
+
+
+
+################################################
+pm25_maps_list      <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
 no2_maps_list        <- c('2011_no2_total','2015_no2_total','2020_no2_total','2025_no2_total', '2030_no2_total')
+
+pm25_plot_list        <- list()
 no2_plot_list        <- list()
 
-#source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
-#source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/pm25_laei2013_colours_breaks.R')
-
+## Fix PM data and do the plots
 for (i in 1:length(pm25_maps_list)) {
   
-  t <- quote('test')
+  wards[[pm25_maps_list[i]]]  <- cut(wards[[pm25_maps_list[i]]][,1], breaks=pm25_laei2013_breaks)
+  wards[[pm25_maps_list[i]]]  <- gsub("(", "", wards[[pm25_maps_list[i]]], fixed=T)
+  wards[[pm25_maps_list[i]]]  <- gsub("]", "", wards[[pm25_maps_list[i]]], fixed=T)
+  wards[[pm25_maps_list[i]]]  <- gsub(",", "-", wards[[pm25_maps_list[i]]], fixed=T)
+  wards[[pm25_maps_list[i]]]  <- factor(wards[[pm25_maps_list[i]]], levels = pm25_factors)
   
-  pm25_plot_list[[i]]   <- ggplot(wards) +
-                            geom_sf(aes(fill = round(wards[[no2_maps_list[1]]][,1]),1)) +
-                            scale_fill_viridis() +
-                            theme_bw()
+  pm25_plot_list[[i]]         <- ggplot(wards) +
+                                    geom_sf(aes(fill = wards[[pm25_maps_list[i]]]), colour='white') +
+                                    scale_fill_manual(values = pm25_laei2013_labels, drop=FALSE, name = expression(paste('PM'[2.5], ' ', mu, 'g ', m^3, ' '))) +
+                                    theme(axis.text = element_blank(),
+                                          panel.background = element_blank(),
+                                          legend.background = element_rect(size=0.2, linetype="solid", 
+                                                                           colour ="black"))
 }
 
-print('All done, writing to a (large) csv')
+## Fix NO data and do the plots
+for (i in 1:length(no2_maps_list)) {
+  
+  wards[[no2_maps_list[i]]]  <- cut(wards[[no2_maps_list[i]]][,1], breaks=no2_laei2013_breaks)
+  wards[[no2_maps_list[i]]]  <- gsub("(", "", wards[[no2_maps_list[i]]], fixed=T)
+  wards[[no2_maps_list[i]]]  <- gsub("]", "", wards[[no2_maps_list[i]]], fixed=T)
+  wards[[no2_maps_list[i]]]  <- gsub(",", "-", wards[[no2_maps_list[i]]], fixed=T)
+  wards[[no2_maps_list[i]]]  <- factor(wards[[no2_maps_list[i]]], levels = no2_factors)
+  
+  no2_plot_list[[i]]         <- ggplot(wards) +
+                                    geom_sf(aes(fill = wards[[no2_maps_list[i]]]), colour='white') +
+                                    scale_fill_manual(values = no2_laei2013_labels, drop=FALSE, name = expression(paste('NO'[2], ' ', mu, 'g ', m^3, ' '))) +
+                                    theme(axis.text = element_blank(),
+                                          panel.background = element_blank(),
+                                          legend.background = element_rect(size=0.2, linetype="solid", 
+                                                                           colour ="black"))
+}
+
+## Now get on to the plotting
+
+print('All done, writing to a (large) csv, outputting PNG files for the maps, and sticking them all in a ZIP file')
+
+
 
 write.csv(wards, file ="wards.csv",row.names=FALSE)

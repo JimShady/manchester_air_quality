@@ -279,9 +279,6 @@ no2_factors                    <- c('0-4', '4-6', '6-8', '8-10', '10-12', '12-14
 pm25_maps_list      <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
 no2_maps_list        <- c('2011_no2_total','2015_no2_total','2020_no2_total','2025_no2_total', '2030_no2_total')
 
-pm25_plot_list        <- list()
-no2_plot_list        <- list()
-
 ## Fix PM data and do the plots
 for (i in 1:length(pm25_maps_list)) {
   
@@ -291,13 +288,19 @@ for (i in 1:length(pm25_maps_list)) {
   wards[[pm25_maps_list[i]]]  <- gsub(",", "-", wards[[pm25_maps_list[i]]], fixed=T)
   wards[[pm25_maps_list[i]]]  <- factor(wards[[pm25_maps_list[i]]], levels = pm25_factors)
   
-  pm25_plot_list[[i]]         <- ggplot(wards) +
+  plot                       <- ggplot(wards) +
                                     geom_sf(aes(fill = wards[[pm25_maps_list[i]]]), colour='white') +
                                     scale_fill_manual(values = pm25_laei2013_labels, drop=FALSE, name = expression(paste('PM'[2.5], ' ', mu, 'g ', m^3, ' '))) +
                                     theme(axis.text = element_blank(),
                                           panel.background = element_blank(),
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
+  
+  png(paste0(pm25_maps_list[i], ".png"), units = 'cm', height = 7, width = 6)
+  print(plot)
+  dev.off()
+  
+  
 }
 
 ## Fix NO data and do the plots
@@ -319,6 +322,10 @@ for (i in 1:length(no2_maps_list)) {
 }
 
 ## Now get on to the plotting
+
+for (i in 1:length(plots)) {
+  
+}
 
 print('All done, writing to a (large) csv, outputting PNG files for the maps, and sticking them all in a ZIP file')
 

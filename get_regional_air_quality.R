@@ -18,7 +18,8 @@ latlong     <- "+init=epsg:4326"
 
 
 # Wales, MIdland, Northern England
-years       <- c(2011,2015,2020,2025,2030)
+#years       <- c(2011,2015,2020,2025,2030)
+years       <- c(2011)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -242,9 +243,8 @@ pm25_plot_list        <- list()
 no2_maps_list        <- c('2011_no2_total','2015_no2_total','2020_no2_total','2025_no2_total', '2030_no2_total')
 no2_plot_list        <- list()
 
-
-source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
-source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/pm25_laei2013_colours_breaks.R')
+#source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/no2_laei2013_colours_breaks.R')
+#source('https://raw.githubusercontent.com/KCL-ERG/colour_schemes/master/pm25_laei2013_colours_breaks.R')
 
 for (i in 1:length(pm25_maps_list)) {
   

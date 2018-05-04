@@ -1,12 +1,8 @@
---- 
-title: "Manchester Air Quality" 
-output: 
-  html_document: 
-    pandoc_args: [ 
-      "--output=doc1.pdf" 
-    ] 
---- 
-
+---
+title: "Manchester Air Quality Maps"
+author: James Smith
+output: html_document
+---
 
 ````{r}
 
@@ -30,7 +26,8 @@ latlong     <- "+init=epsg:4326"
 
 
 # Wales, Midland, Northern England
-years       <- c(2011,2015,2020,2025,2030)
+#years       <- c(2011,2015,2020,2025,2030)
+years       <- c(2011)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -236,7 +233,7 @@ wards$st_lengthshape  <- NULL
 
 wards_csv             <- data.frame(wards)
 names(wards_csv)      <- gsub('X', '', names(wards_csv))
-write.csv(wards_csv, file ="C:/Users/james/Desktop/maps/wards.csv",row.names=FALSE)
+#write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
 rm(wards_csv)
 
 ## Get it ready for plotting
@@ -310,7 +307,7 @@ for (i in 1:length(pm25_maps_list)) {
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
   
-  ggsave(paste0('C:/Users/james/Desktop/maps/', pm25_maps_list[i], ".png"), plot)
+  #ggsave(paste0(pm25_maps_list[i], ".png"), plot)
   
 }
 
@@ -332,7 +329,7 @@ for (i in 1:length(no2_maps_list)) {
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
   
-  ggsave(paste0('C:/Users/james/Desktop/maps/', no2_maps_list[i], ".png"), plot)
+ # ggsave(paste0(no2_maps_list[i], ".png"), plot)
   
   
 }
@@ -357,7 +354,7 @@ plot                      <- ggplot(auth_boundary, aes(colour = lad15nm)) +
                                       legend.background = element_rect(size=0.2, linetype="solid", colour ="black")) +
                                   geom_text(data = auth_centroids, aes(x, y, label = id), colour='black')
 
-ggsave(file='C:/Users/james/Desktop/maps/authorities.png', plot)
+#ggsave(file='authorities.png', plot)
 ```
 
 

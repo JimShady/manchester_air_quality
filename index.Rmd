@@ -310,9 +310,6 @@ for (i in 1:length(pm25_maps_list)) {
                                                                            colour ="black"))
   
   ggsave(paste0('maps/', pm25_maps_list[i], ".png"), plot)
-```
-### `r pm25_maps_list[i]`
-```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
 
   
   print(plot)
@@ -342,12 +339,7 @@ for (i in 1:length(no2_maps_list)) {
                                                                            colour ="black"))
   
  ggsave(paste0('maps/', no2_maps_list[i], ".png"), plot)
-  
-```
 
-### `r no2_maps_list[i]`
-
-```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
   print(plot)
   
   
@@ -374,7 +366,6 @@ plot                      <- ggplot(auth_boundary, aes(colour = lad15nm)) +
                                   geom_text(data = auth_centroids, aes(x, y, label = id), colour='black')
 
 ggsave(file='maps/authorities.png', plot)
-
 ```
 
 ### Map of local authorities

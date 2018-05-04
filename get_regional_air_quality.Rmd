@@ -1,3 +1,5 @@
+````{r}
+
 rm(list=ls())
 
 print('Loading any missing libraries')
@@ -346,7 +348,7 @@ plot                      <- ggplot(auth_boundary, aes(colour = lad15nm)) +
                                   geom_text(data = auth_centroids, aes(x, y, label = id), colour='black')
 
 ggsave(file='C:/Users/james/Desktop/maps/authorities.png', plot)
-
+```
 
 
 

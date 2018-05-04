@@ -1,14 +1,19 @@
 ---
-title: "Manchester Air Quality Maps"
-author: James Smith
-output: html_document
+title: "Manchester AIr Quality Maps"
+author: "James Smith"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
 ---
 
 # Manchester Air Quality
 
-To create maps of annual average air quality (PM2.5 & NO2) for Greater Manchester we downloaded air quality data from the [DEFRA Local Air Quality Management webpages](https://uk-air.defra.gov.uk/data/laqm-background-maps). Specifically, we downloaded PM2.5 and NO2 data for the regions of 'Midlands', 'Northern England' and 'Wales' for the year 2011, and for the years 2015 to 2030. The 2011 data was downloaded from the 2011 model predictions, and the 2015 to 2030 data was downloaded from the 2015 model predictions. Using these data of regular 1km by 1km pollutant points we then created a raster layer (for every year and pollutant) in the R statistical analysis package. Mean spatially-weighted concentrations for each Greater Manchester Ward (Bolton, Bury, Oldham, Rochdale, Stockport, Tameside, Trafford, Wigan, Manchester, Salford, Cheshire East and Rossendale) were then calculated, using the Ward boundaries from the Governments [Open Data portal](http://geoportal.statistics.gov.uk/datasets/wards-december-2016-generalised-clipped-boundaries-in-the-uk).
+To create maps of annual average air quality (PM2.5 & NO2) for Greater Manchester we downloaded air quality data from the [DEFRA Local Air Quality Management webpages](https://uk-air.defra.gov.uk/data/laqm-background-maps). Specifically, we downloaded PM2.5 and NO2 data for the regions of 'Midlands', 'Northern England' and 'Wales' for the year 2011, and for the years 2015 to 2030. The 2011 data was downloaded from the 2011 model predictions, and the 2015 to 2030 data was downloaded from the 2015 model predictions. Using these data of regular 1km by 1km pollutant points we then created a raster layer (for every year and pollutant) in the R statistical analysis package. Mean spatially-weighted concentrations for each Greater Manchester Ward (Bolton, Bury, Oldham, Rochdale, Stockport, Tameside, Trafford, Wigan, Manchester, Salford) were then calculated, using the Ward boundaries from the Governments [Open Data portal](http://geoportal.statistics.gov.uk/datasets/wards-december-2016-generalised-clipped-boundaries-in-the-uk).
 
-```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
+```{r , include=FALSE}
 
 rm(list=ls())
 
@@ -23,7 +28,10 @@ library(rgdal)
 library(rgeos)
 library(ggplot2)
 library(sf)
+library(rmarkdown)
+```
 
+```{r , echo = FALSE, message = FALSE, warning  = FALSE}
 ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
 
@@ -224,7 +232,7 @@ wards$st_lengthshape  <- NULL
 
 wards_csv             <- data.frame(wards)
 names(wards_csv)      <- gsub('X', '', names(wards_csv))
-#write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
+write.csv(wards_csv, file ="output_data/wards.csv",row.names=FALSE)
 rm(wards_csv)
 
 ## Get it ready for plotting
@@ -302,6 +310,10 @@ for (i in 1:length(pm25_maps_list)) {
                                                                            colour ="black"))
   
   ggsave(paste0('maps/', pm25_maps_list[i], ".png"), plot)
+```
+### `r pm25_maps_list[i]`
+```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
+
   
   print(plot)
   
@@ -331,6 +343,11 @@ for (i in 1:length(no2_maps_list)) {
   
  ggsave(paste0('maps/', no2_maps_list[i], ".png"), plot)
   
+```
+
+### `r no2_maps_list[i]`
+
+```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
   print(plot)
   
   
@@ -358,6 +375,11 @@ plot                      <- ggplot(auth_boundary, aes(colour = lad15nm)) +
 
 ggsave(file='maps/authorities.png', plot)
 
+```
+
+### Map of local authorities
+
+```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
 print(plot)
 ```
 

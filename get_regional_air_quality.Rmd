@@ -19,7 +19,6 @@ latlong     <- "+init=epsg:4326"
 
 # Wales, Midland, Northern England
 years       <- c(2011,2015,2020,2025,2030)
-years       <- c(2030)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -328,6 +327,7 @@ for (i in 1:length(no2_maps_list)) {
 
 ## Now the map of the local authorities
 auth_boundary               <- st_as_sf(auth_boundary)
+auth_boundary$lad15nm       <- as.character(auth_boundary$lad15nm)
 auth_boundary$id            <- 1:nrow(auth_boundary)
 auth_centroids              <- data.frame(id = as.character(auth_boundary$id),
                                   name = as.character(auth_boundary$lad15nm),
@@ -335,20 +335,17 @@ auth_centroids              <- data.frame(id = as.character(auth_boundary$id),
 names(auth_centroids)[3:4] <- c('x','y') 
 auth_centroids[auth_centroids$id == 1,]$x <- auth_centroids[auth_centroids$id == 1,]$x + 5000
 
-plot                      <- ggplot(auth_boundary) +
-                                geom_sf(fill=NA) +
-                                geom_text(data = auth_centroids, aes(x, y, label = id), colour='black') +
-                                geom_text(data = auth_centroids, aes(x, y, label = id), colour=NA) +
-                                scale_fill_manual(values = auth_centroids$name,
-                                                  labels = auth_centroids$name) +
+plot                      <- ggplot(auth_boundary, aes(colour = lad15nm)) +
+                                geom_sf() +
+                                scale_colour_manual(values = rep('black', 12), name = 'Local Authority', labels = paste(1:12, auth_boundary$lad15nm)) +
                                 theme(axis.text = element_blank(),
                                       axis.ticks = element_blank(),
                                       axis.title = element_blank(),
                                       panel.background = element_blank(),
-                                      legend.background = element_rect(size=0.2, linetype="solid", colour ="black"),
-                                      legend.key = element_blank())
+                                      legend.background = element_rect(size=0.2, linetype="solid", colour ="black")) +
+                                  geom_text(data = auth_centroids, aes(x, y, label = id), colour='black')
 
-ggsave(paste0('C:/Users/james/Desktop/maps/', no2_maps_list[i], ".png"), plot)
+ggsave(file='C:/Users/james/Desktop/maps/authorities.png', plot)
 
 
 

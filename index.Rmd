@@ -330,6 +330,7 @@ for (i in 1:length(no2_maps_list)) {
                                                                            colour ="black"))
   
  # ggsave(paste0(no2_maps_list[i], ".png"), plot)
+  plot
   
   
 }

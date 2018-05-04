@@ -17,9 +17,9 @@ ukgrid      <- "+init=epsg:27700"
 latlong     <- "+init=epsg:4326"
 
 
-# Wales, MIdland, Northern England
+# Wales, Midland, Northern England
 years       <- c(2011,2015,2020,2025,2030)
-#years       <- c(2011)
+years       <- c(2030)
 regions     <- c('Midlands', 'Northern_England', 'Wales')
 
 authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochdale', 'Stockport', 'Tameside',
@@ -28,17 +28,17 @@ authorities <- data.frame(authority_name = c('Bolton', 'Bury', 'Oldham', 'Rochda
 
 print('getting a geojson of UK wards from governmant data portal')
 
-url     <- 'https://opendata.arcgis.com/datasets/d5c9c1d89a5a44e9a7f88f182ffe5ba2_2.geojson'
-wards   <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
-wards   <- spTransform(wards, ukgrid)
-wards   <- wards[wards$lad16nm %in% authorities$authority_name,]
+url                 <- 'https://opendata.arcgis.com/datasets/d5c9c1d89a5a44e9a7f88f182ffe5ba2_2.geojson'
+wards               <- readOGR(dsn = url, layer = "d5c9c1d89a5a44e9a7f88f182ffe5ba2_2")
+wards               <- spTransform(wards, ukgrid)
+wards               <- wards[wards$lad16nm %in% authorities$authority_name,]
 
 print('getting a geojson of UK local authorities from data portal')
 
-url             <- 'https://opendata.arcgis.com/datasets/8edafbe3276d4b56aec60991cbddda50_4.geojson'
-auth_boundary   <- readOGR(dsn = url, layer = "8edafbe3276d4b56aec60991cbddda50_4")
-auth_boundary   <- spTransform(auth_boundary, ukgrid)
-auth_boundary   <- auth_boundary[auth_boundary$lad15nm %in% authorities$authority_name,]
+url                 <- 'https://opendata.arcgis.com/datasets/8edafbe3276d4b56aec60991cbddda50_4.geojson'
+auth_boundary       <- readOGR(dsn = url, layer = "8edafbe3276d4b56aec60991cbddda50_4")
+auth_boundary       <- spTransform(auth_boundary, ukgrid)
+auth_boundary       <- auth_boundary[auth_boundary$lad15nm %in% authorities$authority_name,]
 
 ## Link my session to the form I'm going to download data from
 session_2015       <- html_session("https://uk-air.defra.gov.uk/data/laqm-background-maps?year=2015")
@@ -225,11 +225,11 @@ wards$st_lengthshape  <- NULL
 
 wards_csv             <- data.frame(wards)
 names(wards_csv)      <- gsub('X', '', names(wards_csv))
-write.csv(wards_csv, file ="wards.csv",row.names=FALSE)
+write.csv(wards_csv, file ="C:/Users/james/Desktop/maps/wards.csv",row.names=FALSE)
 rm(wards_csv)
 
 ## Get it ready for plotting
-names(wards)          <- gsub('X', '', names(wards))
+#names(wards)          <- gsub('X', '', names(wards))
 wards                 <- st_as_sf(wards)
 
 ## Sorting out colours and breaks
@@ -276,8 +276,8 @@ no2_factors                    <- c('0-4', '4-6', '6-8', '8-10', '10-12', '12-14
 
 
 ################################################
-pm25_maps_list      <- c('2011_pm25_total','2015_pm25_total','2020_pm25_total','2025_pm25_total', '2030_pm25_total')
-no2_maps_list        <- c('2011_no2_total','2015_no2_total','2020_no2_total','2025_no2_total', '2030_no2_total')
+pm25_maps_list       <- paste0(years, '_pm25_total')
+no2_maps_list        <- paste0(years, '_no2_total')
 
 ## Fix PM data and do the plots
 for (i in 1:length(pm25_maps_list)) {
@@ -290,7 +290,9 @@ for (i in 1:length(pm25_maps_list)) {
   
   plot                       <- ggplot(wards) +
                                     geom_sf(aes(fill = wards[[pm25_maps_list[i]]]), colour='grey') +
-                                    scale_fill_manual(values = pm25_laei2013_labels, drop=FALSE, name = expression(paste('PM'[2.5], ' ', mu, 'g ', m^3, ' '))) +
+                                    scale_fill_manual(values = pm25_laei2013_labels,
+                                                      drop=FALSE,
+                                                      name = expression(paste('PM'[2.5], ' ', mu, 'g ', m^3, ' '))) +
                                     theme(axis.text = element_blank(),
                                           axis.ticks = element_blank(),
                                           panel.background = element_blank(),
@@ -298,8 +300,6 @@ for (i in 1:length(pm25_maps_list)) {
                                                                            colour ="black"))
   
   ggsave(paste0('C:/Users/james/Desktop/maps/', pm25_maps_list[i], ".png"), plot)
-  
-  
   
 }
 
@@ -316,6 +316,7 @@ for (i in 1:length(no2_maps_list)) {
                                     geom_sf(aes(fill = wards[[no2_maps_list[i]]]), colour='grey') +
                                     scale_fill_manual(values = no2_laei2013_labels, drop=FALSE, name = expression(paste('NO'[2], ' ', mu, 'g ', m^3, ' '))) +
                                     theme(axis.text = element_blank(),
+                                          axis.ticks = element_blank(),
                                           panel.background = element_blank(),
                                           legend.background = element_rect(size=0.2, linetype="solid", 
                                                                            colour ="black"))
@@ -325,12 +326,29 @@ for (i in 1:length(no2_maps_list)) {
   
 }
 
+## Now the map of the local authorities
+auth_boundary               <- st_as_sf(auth_boundary)
+auth_boundary$id            <- 1:nrow(auth_boundary)
+auth_centroids              <- data.frame(id = as.character(auth_boundary$id),
+                                  name = as.character(auth_boundary$lad15nm),
+                                  st_coordinates(st_centroid(auth_boundary)))
+names(auth_centroids)[3:4] <- c('x','y') 
+auth_centroids[auth_centroids$id == 1,]$x <- auth_centroids[auth_centroids$id == 1,]$x + 5000
 
-write.csv(wards, file ="'C:/Users/james/Desktop/maps/data.csv",row.names=FALSE)
+plot                      <- ggplot(auth_boundary) +
+                                geom_sf(fill=NA) +
+                                geom_text(data = auth_centroids, aes(x, y, label = id), colour='black') +
+                                geom_text(data = auth_centroids, aes(x, y, label = id), colour=NA) +
+                                scale_fill_manual(values = auth_centroids$name,
+                                                  labels = auth_centroids$name) +
+                                theme(axis.text = element_blank(),
+                                      axis.ticks = element_blank(),
+                                      axis.title = element_blank(),
+                                      panel.background = element_blank(),
+                                      legend.background = element_rect(size=0.2, linetype="solid", colour ="black"),
+                                      legend.key = element_blank())
 
-
-
-print('All done, writing to a (large) csv, outputting PNG files for the maps, and sticking them all in a ZIP file')
+ggsave(paste0('C:/Users/james/Desktop/maps/', no2_maps_list[i], ".png"), plot)
 
 
 

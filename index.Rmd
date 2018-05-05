@@ -7,6 +7,8 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: false
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "docs") })      
 ---
 
 # Manchester Air Quality

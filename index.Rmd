@@ -291,7 +291,7 @@ no2_maps_list        <- paste0(years, '_no2_total')
 ## Fix PM data and do the plots
 ```
 ## PM2.5 maps
-```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
+```{r , echo = FALSE, message = FALSE, warnings  = FALSE, results='asis'}
 for (i in 1:length(pm25_maps_list)) {
   
   wards[[pm25_maps_list[i]]]  <- cut(wards[[pm25_maps_list[i]]][,1], breaks=pm25_laei2013_breaks)
@@ -313,7 +313,7 @@ for (i in 1:length(pm25_maps_list)) {
   
   ggsave(paste0('maps/', pm25_maps_list[i], ".png"), plot)
 
-  
+  print(pm25_maps_list[i])
   print(plot)
   
 }
@@ -341,7 +341,8 @@ for (i in 1:length(no2_maps_list)) {
                                                                            colour ="black"))
   
  ggsave(paste0('maps/', no2_maps_list[i], ".png"), plot)
-
+  
+  print(no2_maps_list[i])
   print(plot)
   
   
@@ -372,7 +373,7 @@ ggsave(file='maps/authorities.png', plot)
 
 ### Map of local authorities
 
-```{r , echo = FALSE, message = FALSE, warnings  = FALSE}
+```{r , echo = FALSE, message = FALSE, warning = FALSE}
 print(plot)
 ```
 
